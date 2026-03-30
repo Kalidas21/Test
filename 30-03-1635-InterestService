@@ -1,0 +1,26 @@
+public InterestResponseDTO postInterest(Long accountId) {
+
+    // 🔹 Fetch latest accrual
+    InterestAccrual accrual = accrualRepo
+            .findTopByAccountIdOrderByCalculatedDateDesc(accountId);
+
+    if (accrual == null) {
+        throw new RuntimeException("No accrual found for account");
+    }
+
+    // 🔹 Create posting using accrued amount
+    InterestPosting posting = InterestPosting.builder()
+            .accountId(accountId)
+            .amount(accrual.getInterestAmount())
+            .postingDate(LocalDateTime.now())
+            .postingType("CASA")
+            .build();
+
+    postingRepo.save(posting);
+
+    return InterestResponseDTO.builder()
+            .accountId(accountId)
+            .interestAmount(accrual.getInterestAmount())
+            .message("Interest posted successfully")
+            .build();
+}
