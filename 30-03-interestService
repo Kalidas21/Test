@@ -1,0 +1,17 @@
+private BigDecimal calculateInterest(BigDecimal principal, int days) {
+
+    BigDecimal rate;
+
+    if (principal.compareTo(new BigDecimal("10000")) <= 0) {
+        rate = new BigDecimal("3");
+    } else if (principal.compareTo(new BigDecimal("50000")) <= 0) {
+        rate = new BigDecimal("4");
+    } else {
+        rate = new BigDecimal("5");
+    }
+
+    return principal
+            .multiply(rate)
+            .multiply(BigDecimal.valueOf(days))
+            .divide(new BigDecimal("36500"), 2, RoundingMode.HALF_UP);
+}
