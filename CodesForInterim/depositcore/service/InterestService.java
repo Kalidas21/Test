@@ -67,7 +67,7 @@ public class InterestService {
                 .build();
     }
 
-    public InterestResponseDTO postInterest(Long accountId) {
+    public InterestResponseDTO postInterest(Long accountId, PostingType postingType) {
 
         InterestAccrual accrual = accrualRepo
                 .findTopByAccountIdOrderByCalculatedDateDesc(accountId);
@@ -80,7 +80,7 @@ public class InterestService {
                 .accountId(accountId)
                 .amount(accrual.getInterestAmount())
                 .postingDate(LocalDateTime.now())
-                .postingType("CASA")
+                .postingType(postingType)
                 .build();
 
         postingRepo.save(posting);
