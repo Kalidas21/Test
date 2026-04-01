@@ -45,6 +45,7 @@ public class InterestService {
 
 
     // Create Accrual
+    @Transactional
     public InterestResponseDTO createAccrual(InterestRequestDTO request) {
 
         BigDecimal interest = calculateInterest(
