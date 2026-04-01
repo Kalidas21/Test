@@ -1,0 +1,286 @@
+DepositCoreX - Core Banking Deposits, Interest & 
+GL Posting Management System
+1. Introduction
+DepositCoreX is a web-based Core Banking Deposits & Account Servicing System
+designed for banks to manage Savings, Current, and Term Deposit (FD/RD) products.
+It handles end-to-end lifecycle activities:
+• CASA & Term deposit account creation
+• Standing instructions
+• Interest accrual & posting
+• Cheque book & debit card references
+• Transaction ledgering & GL posting
+• Dormancy, holds, lien marking
+• Account closure, payouts
+• Regulatory & operational reports
+The platform uses a REST API-based backend architecture with Angular/React frontend, 
+compatible with Java (Spring Boot) or .NET (ASP.NET Core).
+Actors / Users
+• Customer: Views balances, deposits, statements.
+• Branch Officer: Opens accounts, manages customer servicing requests.
+• Operations Officer: Handles transitions, holds, FD/RD servicing.
+• Finance/GL Analyst: Oversees GL posting and settlements.
+• Core Admin: Configures deposit products, interest tables, charges, rules.
+2. Module Overview
+2.1 Identity & Access Management
+Authentication, RBAC, audit logs.
+2.2 Customer Onboarding Reference
+Customer KYC profile linking (read-only reference from KYC system).
+2.3 CASA & Term Deposit Account Creation
+Account number generation, linkage, product details.
+2.4 Deposit Product Configuration
+CASA, FD, RD parameters — interest tables, TDS rules, charges.
+2.5 Transaction Ledgering & GL Posting
+Debit/credit postings, reversal, fees, and GL entries.
+2.6 Interest Accrual & Posting
+Daily accrual for CASA; maturity schedule for FD/RD.
+2.7 Standing Instructions, Holds & Lien Marking
+Account holds, SI executions, lien freeze, partial freeze.
+2.8 Account Servicing (FD/RD lifecycle)
+Premature closure, renewal, maturity payouts.
+2.9 Statements, SOA & Regulatory Reporting
+Monthly statements, interest certificates, regulatory reports.
+2.10 Notifications & Alerts
+Balace alerts, FD maturity, charges, SI failures.
+3. Architecture Overview
+• Frontend: Angular/React
+• Backend: REST microservices
+• Database: MySQL/PostgreSQL/SQL Server
+• Integration: No external CBS/GL integration in Phase-1 (placeholder only)
+4. Module-Wise Design
+4.1 Identity & Access Management Module
+Features:
+• User login, RBAC, audit logging
+Entities:
+• User
+o UserID
+o Name
+o Role (Customer/Branch/Operations/Finance/Admin)
+o Email
+o Phone
+• AuditLog
+o AuditID
+o UserID
+o Action
+o Resource
+o Timestamp
+o Metadata
+4.2 Customer Onboarding Reference Module
+Features:
+• Link deposit accounts to existing customer profiles
+Entities:
+• CustomerRef
+o CustomerID
+o CIFNumber
+o FullName
+o Segment (Retail/Corporate)
+o KYCStatus
+o Status
+4.3 CASA & Term Deposit Account Creation Module
+Features:
+• Create accounts with product mapping
+Entities:
+• DepositAccount
+o AccountID
+o CustomerID
+o ProductID
+o AccountNumber
+o Category (Savings/Current/FD/RD)
+o Currency
+o OpenDate
+o Status (Active/Dormant/Closed)
+• TermDeposit (For FD/RD)
+o TDID
+o AccountID
+o PrincipalAmount
+o TenureMonths
+o Rate
+o StartDate
+o MaturityDate
+o PayoutMode (CreditAccount/Transfer)
+o Status (Active/Matured/Closed)
+4.4 Deposit Product Configuration Module
+Features:
+• Configure CASA/FD/RD products with rules
+Entities:
+• DepositProduct
+o ProductID
+o ProductName
+o Category
+o MinAmount
+o MaxAmount
+o MinTenure
+o MaxTenure
+o InterestMethod (Simple/Compounded)
+o Status
+• InterestTable
+o TableID
+o ProductID
+o TenureFrom
+o TenureTo
+o Rate
+o EffectiveFrom
+o EffectiveTo
+• ChargeRule
+o ChargeID
+o ProductID
+o ChargeType (Maintenance/Penal/Closure)
+o Amount
+o Mode (Flat/Percent)
+4.5 Transaction Ledgering & GL Posting Module
+Features:
+• Debit/Credit ledger, fees, reversals, hold/overdraft checks
+Entities:
+• Transaction
+o TxnID
+o AccountID
+o TxnType (Debit/Credit)
+o Amount
+o Narrative
+o Channel (Branch/ATM/Online/API)
+o TxnDate
+o BalanceAfter
+o Status
+• GLPosting
+o GLPostingID
+o TxnID
+o GLAccount
+o DebitOrCredit
+o Amount
+o PostedDate
+4.6 Interest Accrual & Posting Module
+Features:
+• CASA daily accrual; FD maturity
+• RD monthly installment-based interest
+Entities:
+• InterestAccrual
+o AccrualID
+o AccountID
+o PeriodStart
+o PeriodEnd
+o InterestAmount
+o CalculatedDate
+• InterestPosting
+o PostingID
+o AccountID
+o PostingDate
+o Amount
+o PostingType (CASAInterest/MaturityInterest/FD/RD)
+4.7 Standing Instructions, Holds & Lien Marking Module
+Features:
+• Place holds, mark liens, process SI execution
+Entities:
+• StandingInstruction
+o SIID
+o FromAccountID
+o ToAccountID
+o Frequency
+o Amount
+o NextRunDate
+o Status
+• HoldOrLien
+o HoldID
+o AccountID
+o HoldType (Hold/Lien)
+o Amount
+o Reason
+o PlacedDate
+o Status (Active/Released)
+4.8 Term Deposit Servicing Module
+Features:
+• Premature closure, renewal, maturity payout
+Entities:
+• TDMaturity
+o MaturityID
+o TDID
+o MaturityAmount
+o PayoutDate
+o RenewedAsTDID
+o Status (Paid/Renewed)
+• PrematureClosure
+o ClosureID
+o TDID
+o ClosureDate
+o PenalRate
+o CalculatedAmount
+o Status
+4.9 Statements, SOA & Regulatory Reporting Module
+Features:
+• Generate monthly/quarterly statements and regulatory reports
+Entities:
+• Statement
+o StatementID
+o AccountID
+o PeriodStart
+o PeriodEnd
+o GeneratedDate
+o SummaryJSON
+• DepositReport
+o ReportID
+o Scope (Branch/Product/Period)
+o Metrics (Balances, InterestPosted, NPAForOD, MaturityDue)
+o GeneratedDate
+4.10 Notifications & Alerts Module
+Features:
+• Alerts for interest credits, FD maturity, low balance, SI failures
+Entities:
+• Notification
+o NotificationID
+o UserID
+o Message
+o Category (Balance/Interest/Maturity/SI)
+o Status (Unread/Read/Dismissed)
+o CreatedDate
+5. Deployment Strategy
+• Local: Angular/React frontend + Spring Boot/.NET backend + local DB
+• Production: Cloud/on-prem with stateless services, secure APIs, GL posting jobs 
+and batch placehoders
+6. Database Design
+Tables:
+• User(UserID, Name, Role, Email, Phone)
+• AuditLog(AuditID, UserID, Action, Resource, Timestamp, Metadata)
+• CustomerRef(CustomerID, CIFNumber, FullName, Segment, KYCStatus, Status)
+• DepositAccount(AccountID, CustomerID, ProductID, AccountNumber, Category, 
+Currency, OpenDate, Status)
+• TermDeposit(TDID, AccountID, PrincipalAmount, TenureMonths, Rate, StartDate, 
+MaturityDate, PayoutMode, Status)
+• DepositProduct(ProductID, ProductName, Category, MinAmount, MaxAmount, 
+MinTenure, MaxTenure, InterestMethod, Status)
+• InterestTable(TableID, ProductID, TenureFrom, TenureTo, Rate, EffectiveFrom, 
+EffectiveTo)
+• ChargeRule(ChargeID, ProductID, ChargeType, Amount, Mode)
+• Transaction(TxnID, AccountID, TxnType, Amount, Narrative, Channel, TxnDate, 
+BalanceAfter, Status)
+• GLPosting(GLPostingID, TxnID, GLAccount, DebitOrCredit, Amount, PostedDate)
+• InterestAccrual(AccrualID, AccountID, PeriodStart, PeriodEnd, InterestAmount, 
+CalculatedDate)
+• InterestPosting(PostingID, AccountID, PostingDate, Amount, PostingType)
+• StandingInstruction(SIID, FromAccountID, ToAccountID, Frequency, Amount, 
+NextRunDate, Status)
+• HoldOrLien(HoldID, AccountID, HoldType, Amount, Reason, PlacedDate, Status)
+• TDMaturity(MaturityID, TDID, MaturityAmount, PayoutDate, RenewedAsTDID, 
+Status)
+• PrematureClosure(ClosureID, TDID, ClosureDate, PenalRate, CalculatedAmount, 
+Status)
+• Statement(StatementID, AccountID, PeriodStart, PeriodEnd, GeneratedDate, 
+SummaryJSON)
+• DepositReport(ReportID, Scope, Metrics, GeneratedDate)
+• Notification(NotificationID, UserID, Message, Category, Status, CreatedDate)
+7. User Interface Design
+• Customer Portal: Balance, statements, interest credit history, FD/RD summary.
+• Branch Dashboard: Account opening, servicing requests, SI setup, holds.
+• Operations Console: Disbursement, renewal, maturity payouts, premature closures.
+• Finance Dashboard: GL posting view, ledger trial balances, reconciliation.
+• Admin Panel: Products, interest tables, charges, user roles, reports.
+8. Non-Functional Requirements
+• Performance: 50,000 concurrent users and high-volume accounts/transactions.
+• Security: PII encryption, RBAC, audit trails, compliance-ready.
+• Scalability: Multi-branch, multi-product core banking support.
+• Availability: 99.9% uptime.
+• Maintainability: Modular services, API versioning, batch jobs for daily processes.
+• Observability: Core banking KPIs, logs, GL mismatch alerts.
+9. Assumptions & Constraints
+• No real-time integration to external CBS or SWIFT in Phase-1 (internal ledger only).
+• Interest calculation uses internal job scheduler (no third-party engine).
+• Notifications are in-app only.
+• Fully implementable using Java Spring Boot/ASP.NET Core, Angular/React + 
+RDBMS
